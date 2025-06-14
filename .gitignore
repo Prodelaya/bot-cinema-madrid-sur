@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Bot-specific
+Procfile
+
 # C extensions
 *.so
 
