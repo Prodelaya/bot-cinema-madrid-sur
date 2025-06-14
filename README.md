@@ -136,13 +136,14 @@ python bot.py
 
 ## 🖼️ Vista previa del bot
 
-/images/cine_inicio.png
+![Pantalla de inicio](/images/cine_inicio.png)
 
-/images/horario_link.png
+![Horarios con enlace](/images/horario_link.png)
 
-/images/info.png
+![Información de la película](/images/info.png)
 
-/images/pelis.png
+![Listado de películas](/images/pelis.png)
+
 
 ---
 
