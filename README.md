@@ -136,7 +136,13 @@ python bot.py
 
 ## 🖼️ Vista previa del bot
 
-*Añade capturas de pantalla en la carpeta **`images/`** y enlázalas aquí cuando las tengas.*
+/images/cine_inicio.png
+
+/images/horario_link.png
+
+/images/info.png
+
+/images/pelis.png
 
 ---
 
