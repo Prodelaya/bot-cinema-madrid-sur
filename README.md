@@ -158,7 +158,7 @@ python bot.py
 
 ## 👤 Autor
 
-**Pablo Laya** — estudiante de DAM/DAW, Madrid.\
+**Pablo Laya** — estudiante de DAM/DAW, Madrid.
 
 ---
 
