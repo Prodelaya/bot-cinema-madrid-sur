@@ -118,7 +118,7 @@ soup = BeautifulSoup(requests.get(URL).text, "html.parser")
 
 #### **Odeón Sambil** → Scraping dinámico
 ```python
-# Fuente: Web oficial (JavaScript + DOM dinámico)
+# Fuente: publicine.net (JavaScript + DOM dinámico)
 async with async_playwright() as p:
     browser = await p.chromium.launch(headless=True)
     page = await browser.new_page()
