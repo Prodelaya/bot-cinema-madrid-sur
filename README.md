@@ -277,7 +277,7 @@ python bot.py
 ## 👤 Autor
 
 **Pablo Laya** — estudiante de DAM/DAW, Madrid.
-**GitHub**: [pablolaya-dev](https://github.com/pablolaya-dev)
+**GitHub**: [pablolaya-dev](https://github.com/Prodelaya)
 
 ---
 
