@@ -9,8 +9,8 @@
 🔗 **Pruébalo aquí →** [@cinema\_sur\_madrid\_bot](https://t.me/cinema_sur_madrid_bot)
 
 **Estado por cines:** ✅ Odeón Sambil funciona perfectamente | ❌ Cinesa Parquesur y Yelmo Islazul no disponibles (FilmAffinity bloquea Railway).
-
 **Explicación:** Por falta de tiempo no he migrado a fuentes alternativas como eCartelera.com, pero la solución técnica está identificada.
+
 ---
 
 ## 🎓 Proyecto educativo autodidacta
