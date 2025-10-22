@@ -11,6 +11,27 @@
 
 ---
 
+## 🖼️ Demo del Bot
+
+<div align="center">
+
+### Flujo completo de usuario con integración backend
+
+| **1. Selección de cine** | **2. Cartelera scrapeada** | **3. Metadata desde TMDb API** |
+|:---:|:---:|:---:|
+| ![Inicio](images/cine_inicio.png) | ![Películas](images/pelis.png) | ![Info película](images/info.png) |
+| *Telegram Bot API + InlineKeyboardMarkup* | *Web scraping (BeautifulSoup/Playwright)* | *TMDb REST API + datos normalizados* |
+
+### 4. Navegación hasta compra de entradas
+
+![Horarios con links](images/horario_link.png)
+
+**Stack técnico en acción:** Python async handlers → Scrapers híbridos → APIs externas → Respuesta a usuario en <3s
+
+</div>
+
+---
+
 ## 🎯 Enfoque técnico del proyecto
 
 Este proyecto demuestra competencias clave en **desarrollo backend Python**:
