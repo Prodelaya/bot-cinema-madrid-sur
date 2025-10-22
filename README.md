@@ -4,12 +4,13 @@
 
 ## ✅ Estado del proyecto
 
-💡 **Bot parcialmente  activo**, desplegado en **Railway.app** (plan gratuito).\
+💡 **Bot totalmente funcional**, desplegado en **Railway.app** (plan gratuito).\
 🌐 Accesible 24/7 – puede *hibernar* si no recibe tráfico pero se reactiva automáticamente.\
 🔗 **Pruébalo aquí →** [@cinema\_sur\_madrid\_bot](https://t.me/cinema_sur_madrid_bot)
 
-**Estado por cines:** ✅ Odeón Sambil funciona perfectamente | ❌ Cinesa Parquesur y Yelmo Islazul no disponibles (FilmAffinity bloquea Railway).
-**Explicación:** Por falta de tiempo no he migrado a fuentes alternativas como eCartelera.com, pero la solución técnica está identificada.
+**Estado por cines:** ✅ Los 3 cines funcionan correctamente (Cinesa Parquesur, Odeón Sambil, Yelmo Islazul)
+
+**Nota sobre Railway:** El bot usa el **tier gratuito** de Railway (500 horas/mes, $5 crédito inicial). Cuando se agota el crédito, el servicio se pausa automáticamente hasta el siguiente ciclo de facturación. Si el bot no responde, verifica el estado del plan en Railway dashboard.
 
 ---
 
@@ -25,7 +26,6 @@
 - **Pair‑programming:** generación de bocetos de código que luego se analizaron y refactorizaron.
 - **Debugging:** diagnóstico de errores de scraping, *timeouts* y conflictos de dependencias.
 - **DevOps:** resolución de problemas de despliegue, containerización con Docker y configuración de entornos de producción.
-
 
 ---
 
@@ -95,13 +95,14 @@ libglib2.0-0, libnss3, libgbm1, libxrandr2, libpango-1.0-0...
 
 ```text
 cinema-bot-madrid/
-├── Dockerfile        # Imagen optimizada con Playwright + dependencias
-├── bot.py            # Núcleo del bot: comandos, callbacks, UX
-├── scrapers.py       # Scrapers de los 3 cines (BeautifulSoup + Playwright)
-├── tmdb_api.py       # Cliente ligero para The Movie Database
-├── requirements.txt  # Dependencias Python
-├── .env.example      # Plantilla de variables de entorno
-└── README.md         # Este documento
+├── Dockerfile           # Imagen optimizada con Playwright + dependencias
+├── bot.py               # Núcleo del bot: comandos, callbacks, UX
+├── scrapers.py          # Scrapers de los 3 cines (BeautifulSoup + Playwright)
+├── tmdb_api.py          # Cliente ligero para The Movie Database
+├── requirements.txt     # Dependencias Python
+├── .env.example         # Plantilla de variables de entorno
+├── README.md            # Este documento
+└── TROUBLESHOOTING.md   # Guía de resolución de problemas
 ```
 
 ---
@@ -200,6 +201,7 @@ python bot.py
 3. Añade las variables de entorno en el panel *Variables*:
    ```
    TELEGRAM_BOT_TOKEN=xxxxx
+   TMDB_API_KEY=yyyyy
    ENVIRONMENT=production
    ```
 4. **Deploy automático** → Railway construye la imagen con todas las dependencias.
@@ -222,7 +224,6 @@ python bot.py
 ![Información de la película](/images/info.png)
 
 ![Listado de películas](/images/pelis.png)
-
 
 ---
 
@@ -248,11 +249,90 @@ python bot.py
 - ❌ **Intento 3**: Heroku → Workers de pago ($7/mes)
 - ✅ **Solución final**: Railway + Docker → ¡Funciona!
 
+#### **Fase 4: Optimización y debugging** (Días 8-10)
+- 🐛 **Problema**: Error `Button_data_invalid` al hacer clic en películas
+- 🔍 **Diagnóstico**: Títulos largos excedían límite de 64 bytes en `callback_data`
+- ✅ **Solución**: Sistema de índices numéricos para mapeo de películas
+- 🎯 **Problema**: Bot dejó de responder sin errores visibles
+- 🔍 **Diagnóstico**: Plan de prueba de Railway expirado
+- ✅ **Solución**: Downgrade a Hobby Plan (tier gratuito)
+
 ### **Lecciones aprendidas de DevOps:**
 1. **Dependencias del sistema** ≠ dependencias de Python
 2. **Docker resuelve** problemas de permisos y reproducibilidad
 3. **Platform-as-a-Service** tiene limitaciones → containers dan más control
 4. **Free tiers** varían mucho entre proveedores
+5. **Monitorización proactiva** → Railway no envía alertas cuando se acaba el crédito
+
+---
+
+## 🐛 Problemas resueltos durante el desarrollo
+
+### **Error: `Button_data_invalid` en Telegram**
+
+#### **Síntoma:**
+```python
+telegram.error.BadRequest: Button_data_invalid
+```
+
+#### **Causa:**
+Telegram limita el campo `callback_data` de los botones inline a **64 bytes**. Los títulos de películas largos como *"Sonic 3: La película (Preventa)"* excedían este límite al usarse directamente en:
+```python
+callback_data=f"pelicula_{titulo_completo}"  # ❌ Puede superar 64 bytes
+```
+
+#### **Solución implementada:**
+Sistema de **índices numéricos** que mapea películas a IDs cortos:
+
+```python
+# Guardar mapeo en contexto del usuario
+titulos_lista = list(peliculas_agrupadas.keys())
+context.user_data['titulos_lista'] = titulos_lista
+
+# Usar índice en callback_data
+for idx, titulo_base in enumerate(titulos_lista):
+    InlineKeyboardButton(
+        f"🎬 {titulo_base}",
+        callback_data=f"peli_{idx}"  # ✅ Siempre < 64 bytes
+    )
+
+# Recuperar título al recibir callback
+idx = int(query.data.replace("peli_", ""))
+titulo = context.user_data['titulos_lista'][idx]
+```
+
+#### **Archivos modificados:**
+- `bot.py` (funciones: `handle_button_click`, `handle_movie_selection`, `handle_volver_peliculas`)
+
+#### **Lección aprendida:**
+Al trabajar con APIs externas, siempre verificar **límites documentados** (tamaño de payloads, rate limits, longitud de campos). La indirección mediante IDs es un patrón común para resolver este tipo de restricciones.
+
+---
+
+### **Railway: Gestión del tier gratuito**
+
+#### **Problema inicial:**
+El bot dejó de responder sin errores visibles en los logs.
+
+#### **Diagnóstico:**
+El **plan de prueba** de Railway había expirado. Railway pausó automáticamente el servicio al agotar el crédito gratuito.
+
+#### **Solución:**
+1. Acceder al dashboard de Railway
+2. Navegar a: **Settings → Plan**
+3. Seleccionar **Hobby Plan** (tier gratuito)
+4. Confirmar cambio → El bot se reactiva automáticamente
+
+#### **Limitaciones del tier gratuito:**
+- **500 horas/mes** de ejecución
+- **$5 USD** de crédito mensual
+- Hibernación automática tras inactividad
+- Sin notificaciones cuando se agota el crédito
+
+#### **Recomendaciones:**
+- Monitorear uso mensual en Railway dashboard
+- Considerar despliegue en **Render.com** o **Fly.io** si se necesita 24/7 sin hibernación
+- Para bots de alto tráfico, evaluar VPS económicos (DigitalOcean, Hetzner)
 
 ---
 
@@ -263,30 +343,43 @@ python bot.py
 2. **Arquitectura híbrida:** combinar técnicas según la fuente de datos.
 3. **Fail‑fast:** múltiples fuentes mantienen el servicio online.
 4. **Containerización:** Docker resuelve problemas de dependencias complejas.
+5. **Límites de API:** siempre consultar documentación oficial sobre restricciones.
 
 ### **DevOps:**
 1. **Deploy temprano:** configurar CI/CD al principio evita sorpresas.
 2. **Platform limitations:** cada PaaS tiene restricciones específicas.
 3. **Container strategy:** cuando buildpacks fallan, Docker siempre funciona.
 4. **Environment parity:** desarrollo y producción deben ser idénticos.
+5. **Monitoring:** configurar alertas para servicios críticos (uptime, créditos).
 
 ### **Colaboración con IA:**
 1. **IA ≠ magia:** leer y entender lo generado es el verdadero aprendizaje.
-2. **Debugging iterativo:** IA ayuda a diagnosticar, pero hay que entender la causa.
+2. **Debugging iterativo:** IA ayuda a diagnosticar, pero hay que entender la causa raíz.
 3. **Architecture decisions:** IA sugiere, pero la decisión final es del desarrollador.
+4. **Documentación viva:** actualizar README con problemas reales encontrados ayuda a futuros desarrolladores.
+
+---
+
+## 🔧 Troubleshooting
+
+Si encuentras problemas durante el desarrollo o despliegue, consulta la [Guía de Troubleshooting](TROUBLESHOOTING.md) que incluye:
+
+- Soluciones a errores comunes de Telegram Bot API
+- Problemas de scraping y bloqueos
+- Errores de despliegue en Railway
+- Gestión de dependencias y Docker
 
 ---
 
 ## 👤 Autor
 
-**Pablo Laya** — estudiante de DAM/DAW, Madrid.
+**Pablo Laya** — estudiante de DAM/DAW, Madrid.\
 **GitHub**: [pablolaya-dev](https://github.com/Prodelaya)
 
 ---
 
 ## 📜 Licencia
 
-Distribuido bajo la **MIT License**.
+Distribuido bajo la **MIT License**.
 
 ---
-
