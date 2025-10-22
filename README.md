@@ -460,29 +460,6 @@ logger.info(f"Usuario {user_id} solicitó cine: {cine}")
 - ✅ CI/CD automático (Railway)
 - ✅ State management (user context)
 
-### **Mejoras Futuras**
-
-**Backend:**
-- [ ] **Caching layer:** Redis para reducir scrapers repetidos
-- [ ] **Database:** PostgreSQL para histórico de carteleras
-- [ ] **API REST propia:** FastAPI para exponer datos a otros clientes
-- [ ] **Queue system:** Celery + RabbitMQ para scrapers asíncronos
-- [ ] **Rate limiting:** Protección contra abuse
-
-**Testing:**
-- [ ] **Unit tests:** pytest con cobertura >80%
-- [ ] **Integration tests:** test_bot.py con mocks
-- [ ] **Load testing:** Locust para simular concurrencia
-
-**Monitoring:**
-- [ ] **Prometheus + Grafana:** métricas de performance
-- [ ] **Sentry:** error tracking y alertas
-- [ ] **Health checks:** endpoints `/health` y `/ready`
-
-**Infraestructura:**
-- [ ] **Multi-stage builds optimizados:** imagen <400MB
-- [ ] **Kubernetes deployment:** escalado horizontal
-- [ ] **GitHub Actions:** CI/CD con tests automáticos
 
 ---
 
@@ -518,8 +495,6 @@ Este proyecto representa mi **metodología de aprendizaje autodidacta**:
 4. **Documentación exhaustiva** → README + troubleshooting guide
 5. **Asistencia de IA** → ChatGPT/Claude como pair-programming mentor
 
-**Lo que NO es:** código generado y copiado ciegamente  
-**Lo que SÍ es:** arquitectura pensada, decisiones justificadas, problemas reales resueltos
 
 ---
 
