@@ -52,15 +52,14 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
         # Obtener cartelera
         cartelera = get_cinesa_showtimes()
         
-        # Guardar en contexto para uso posterior
+        # Guardar en contexto
         context.user_data['cartelera_actual'] = cartelera
         context.user_data['cine_actual'] = 'cinesa'
         
-        # Agrupar películas por título base (sin versiones)
+        # Agrupar películas por título base
         peliculas_agrupadas = {}
         for pelicula in cartelera:
             titulo = pelicula['titulo']
-            # Extraer título base (antes del primer paréntesis)
             titulo_base = titulo.split('(')[0].strip()
             
             if titulo_base not in peliculas_agrupadas:
@@ -68,21 +67,26 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
             peliculas_agrupadas[titulo_base].append(pelicula)
         
         context.user_data['peliculas_agrupadas'] = peliculas_agrupadas
-    
-        # Crear botones con títulos base únicos
+        
+        # 🆕 CREAR LISTA DE TÍTULOS (mapeo índice → título)
+        titulos_lista = list(peliculas_agrupadas.keys())
+        context.user_data['titulos_lista'] = titulos_lista
+
+        # Crear botones con ÍNDICES en lugar de títulos
         keyboard = []
-        for titulo_base in peliculas_agrupadas:
-            # Verificar si alguna versión tiene preventas
-            tiene_preventas = any(pelicula['preventas'] for pelicula in peliculas_agrupadas[titulo_base])
+        for idx, titulo_base in enumerate(titulos_lista):
+            tiene_preventas = any(p['preventas'] for p in peliculas_agrupadas[titulo_base])
             
-            # Añadir indicador de preventa si es necesario
             texto_boton = f"🎬 {titulo_base}"
             if tiene_preventas:
                 texto_boton += " (Preventa)"
             
-            keyboard.append([InlineKeyboardButton(texto_boton, callback_data=f"pelicula_{texto_boton.replace('🎬 ', '')}")])
+            # 🔑 CAMBIO CRÍTICO: usar índice corto
+            keyboard.append([InlineKeyboardButton(
+                texto_boton, 
+                callback_data=f"peli_{idx}"
+            )])
 
-        # Añadir botón volver
         keyboard.append([InlineKeyboardButton("🔙 Volver", callback_data="volver_cines")])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -91,21 +95,16 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
             reply_markup=reply_markup,
             parse_mode="Markdown"
         )
-        return  # Importante: salir aquí para no ejecutar el edit_message_text del final
+        return
     
     elif cine_seleccionado == "odeon":
-        # Obtener cartelera
         cartelera = await get_odeon_showtimes()
-        
-        # Guardar en contexto para uso posterior
         context.user_data['cartelera_actual'] = cartelera
         context.user_data['cine_actual'] = 'odeon'
         
-        # Agrupar películas por título base (sin versiones)
         peliculas_agrupadas = {}
         for pelicula in cartelera:
             titulo = pelicula['titulo']
-            # Extraer título base (antes del primer paréntesis)
             titulo_base = titulo.split('(')[0].strip()
             
             if titulo_base not in peliculas_agrupadas:
@@ -113,21 +112,24 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
             peliculas_agrupadas[titulo_base].append(pelicula)
         
         context.user_data['peliculas_agrupadas'] = peliculas_agrupadas
+        
+        # 🆕 CREAR LISTA DE TÍTULOS
+        titulos_lista = list(peliculas_agrupadas.keys())
+        context.user_data['titulos_lista'] = titulos_lista
 
-        # Crear botones con títulos base únicos
         keyboard = []
-        for titulo_base in peliculas_agrupadas:
-            # Verificar si alguna versión tiene preventas
-            tiene_preventas = any(pelicula['preventas'] for pelicula in peliculas_agrupadas[titulo_base])
-            
-            # Añadir indicador de preventa si es necesario
+        for idx, titulo_base in enumerate(titulos_lista):
+            tiene_preventas = any(p['preventas'] for p in peliculas_agrupadas[titulo_base])
             texto_boton = f"🎬 {titulo_base}"
             if tiene_preventas:
                 texto_boton += " (Preventa)"
             
-            keyboard.append([InlineKeyboardButton(texto_boton, callback_data=f"pelicula_{texto_boton.replace('🎬 ', '')}")])
+            # 🔑 USAR ÍNDICE
+            keyboard.append([InlineKeyboardButton(
+                texto_boton, 
+                callback_data=f"peli_{idx}"
+            )])
 
-        # Añadir botón volver
         keyboard.append([InlineKeyboardButton("🔙 Volver", callback_data="volver_cines")])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -136,21 +138,16 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
             reply_markup=reply_markup,
             parse_mode="Markdown"
         )
-        return  # Importante: salir aquí para no ejecutar el edit_message_text del final
-
+        return
+    
     elif cine_seleccionado == "yelmo":
-        # Obtener cartelera (igual que Cinesa)
         cartelera = get_yelmo_showtimes()
-        
-        # Guardar en contexto para uso posterior
         context.user_data['cartelera_actual'] = cartelera
         context.user_data['cine_actual'] = 'yelmo'
         
-        # Agrupar películas por título base (sin versiones)
         peliculas_agrupadas = {}
         for pelicula in cartelera:
             titulo = pelicula['titulo']
-            # Extraer título base (antes del primer paréntesis)
             titulo_base = titulo.split('(')[0].strip()
             
             if titulo_base not in peliculas_agrupadas:
@@ -158,21 +155,24 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
             peliculas_agrupadas[titulo_base].append(pelicula)
         
         context.user_data['peliculas_agrupadas'] = peliculas_agrupadas
+        
+        # 🆕 CREAR LISTA DE TÍTULOS
+        titulos_lista = list(peliculas_agrupadas.keys())
+        context.user_data['titulos_lista'] = titulos_lista
 
-        # Crear botones con títulos base únicos
         keyboard = []
-        for titulo_base in peliculas_agrupadas:
-            # Verificar si alguna versión tiene preventas
-            tiene_preventas = any(pelicula['preventas'] for pelicula in peliculas_agrupadas[titulo_base])
-            
-            # Añadir indicador de preventa si es necesario
+        for idx, titulo_base in enumerate(titulos_lista):
+            tiene_preventas = any(p['preventas'] for p in peliculas_agrupadas[titulo_base])
             texto_boton = f"🎬 {titulo_base}"
             if tiene_preventas:
                 texto_boton += " (Preventa)"
             
-            keyboard.append([InlineKeyboardButton(texto_boton, callback_data=f"pelicula_{texto_boton.replace('🎬 ', '')}")])
+            # 🔑 USAR ÍNDICE
+            keyboard.append([InlineKeyboardButton(
+                texto_boton, 
+                callback_data=f"peli_{idx}"
+            )])
 
-        # Añadir botón volver
         keyboard.append([InlineKeyboardButton("🔙 Volver", callback_data="volver_cines")])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -193,17 +193,22 @@ async def handle_movie_selection(update: Update, context: ContextTypes.DEFAULT_T
     query = update.callback_query
     await query.answer()
     
-    # Extraer título base del callback_data
-    titulo_base_raw = query.data.replace("pelicula_", "")
-    titulo_base = titulo_base_raw.replace(" (Preventa)", "").strip()
-
+    # 🆕 EXTRAER ÍNDICE en lugar de título
+    idx = int(query.data.replace("peli_", ""))
     
-    # Obtener versiones de esta película
+    # 🆕 OBTENER TÍTULO desde el mapeo guardado
+    titulos_lista = context.user_data.get('titulos_lista', [])
+    if idx >= len(titulos_lista):
+        await query.edit_message_text("❌ Error: película no encontrada")
+        return
+    
+    titulo_base = titulos_lista[idx]
+
+    # Resto del código IGUAL (obtener versiones, etc.)
     peliculas_agrupadas = context.user_data.get('peliculas_agrupadas', {})
     versiones = peliculas_agrupadas.get(titulo_base, [])
     
     if len(versiones) == 1:
-        # Solo una versión → ir directamente a opciones (horarios/info)
         pelicula = versiones[0]
         context.user_data['pelicula_seleccionada'] = pelicula
         
@@ -220,7 +225,6 @@ async def handle_movie_selection(update: Update, context: ContextTypes.DEFAULT_T
             parse_mode="Markdown"
         )
     else:
-        # Múltiples versiones → mostrar botones de versión
         context.user_data['versiones_actuales'] = versiones
 
         keyboard = []
@@ -228,7 +232,6 @@ async def handle_movie_selection(update: Update, context: ContextTypes.DEFAULT_T
             titulo_completo = pelicula['titulo']
             keyboard.append([InlineKeyboardButton(f"🎭 {titulo_completo}", callback_data=f"version_{i}")])
 
-        # Añadir botón volver
         keyboard.append([InlineKeyboardButton("🔙 Volver", callback_data="volver_peliculas")])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -493,29 +496,30 @@ async def handle_volver_peliculas(update: Update, context: ContextTypes.DEFAULT_
     query = update.callback_query
     await query.answer()
     
-    # Obtener datos guardados del contexto
     peliculas_agrupadas = context.user_data.get('peliculas_agrupadas', {})
     if not peliculas_agrupadas:
         await query.edit_message_text(text="❌ Error: No hay datos de películas")
         return
     
-    # Recrear botones con títulos base únicos (igual que en handle_button_click)
+    # 🆕 OBTENER LISTA DE TÍTULOS guardada
+    titulos_lista = context.user_data.get('titulos_lista', [])
+    
+    # Recrear botones con ÍNDICES
     keyboard = []
-    for titulo_base in peliculas_agrupadas:
-        # Verificar si alguna versión tiene preventas
-        tiene_preventas = any(pelicula['preventas'] for pelicula in peliculas_agrupadas[titulo_base])
-        
-        # Añadir indicador de preventa si es necesario
+    for idx, titulo_base in enumerate(titulos_lista):
+        tiene_preventas = any(p['preventas'] for p in peliculas_agrupadas[titulo_base])
         texto_boton = f"🎬 {titulo_base}"
         if tiene_preventas:
             texto_boton += " (Preventa)"
         
-        keyboard.append([InlineKeyboardButton(texto_boton, callback_data=f"pelicula_{texto_boton.replace('🎬 ', '')}")])
+        # 🔑 USAR ÍNDICE
+        keyboard.append([InlineKeyboardButton(
+            texto_boton, 
+            callback_data=f"peli_{idx}"
+        )])
     
-    # Añadir botón volver
     keyboard.append([InlineKeyboardButton("🔙 Volver", callback_data="volver_cines")])
     
-    # Determinar texto según el cine actual
     cine_actual = context.user_data.get('cine_actual', 'cinesa')
     textos_cine = {
         'cinesa': "🎟️ *Cinesa Parquesur* - Películas disponibles:",
@@ -588,7 +592,7 @@ def main():
 
     # Handlers de comandos y callbacks
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(handle_movie_selection, pattern="^pelicula_"))
+    app.add_handler(CallbackQueryHandler(handle_movie_selection, pattern="^peli_"))
     app.add_handler(CallbackQueryHandler(handle_version_selection, pattern="^version_"))
     app.add_handler(CallbackQueryHandler(handle_ver_horarios, pattern="^ver_horarios$"))
     app.add_handler(CallbackQueryHandler(handle_ver_info, pattern="^ver_info$"))
